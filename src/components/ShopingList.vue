@@ -8,7 +8,11 @@
             <form @submit.prevent="submitForm" class="container__input-form">
                 <input type="text" class="container__input-addField" v-model="insertedValue">
                 <button class="container__input-addButton" type="submit">+</button>
+
             </form>
+            <div>
+                <p class="error"> {{ isFormError ? errorText : '' }}</p>
+            </div>
         </div>
         <div class="container__shopingList">
             <ul class="container__shopingList-box">
@@ -18,7 +22,7 @@
                         <span>{{ item }}</span>
                         <input type="checkbox" v-model="checkedItems" :value="index">
                     </div>
-                    <div class="item__icon">
+                    <div class="item__icon" v-on:click="handleDelete(index)">
                         <img src="../components/icons/trash.png" alt="trash icon">
                     </div>
 
@@ -40,15 +44,24 @@ export default {
         return {
             items: [] as string[],
             insertedValue: "",
-            checkedItems: [] as number[]
+            checkedItems: [] as number[],
+            isFormError: false as boolean,
+            errorText: 'Pole jest puste' as string
         }
     },
     methods: {
         submitForm() {
-            this.items.push(this.insertedValue);
-            this.insertedValue = '';
+            if (this.insertedValue === '') {
+                return this.isFormError = true;
+            } else {
+                this.isFormError = false;
+                this.items.push(this.insertedValue);
+                this.insertedValue = '';
+            }
         },
-
+        handleDelete(itemId: number) {
+            this.items.splice(itemId, 1)
+        }
 
     }
 
@@ -85,6 +98,7 @@ export default {
         width: 100%;
         display: flex;
         justify-content: space-around;
+        flex-direction: column;
 
         &-form {
             display: flex;
@@ -109,6 +123,12 @@ export default {
             font-size: 20px;
             cursor: pointer;
             border-radius: 50%;
+        }
+
+        .error {
+            padding: 5px;
+            font-size: 14px;
+            color: red;
         }
     }
 
