@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-
+export default {}
 </script>
 <style scoped lang="scss">
 @import './assets/breakpoints.scss';
