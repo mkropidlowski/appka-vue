@@ -33,19 +33,14 @@
 </template>
 <script lang="ts">
 
-interface ShopingListProps {
-    items?: ShopingListProps[];
-
-}
-
 export default {
     name: 'shopingList',
 
     data() {
         return {
-            items: [] as ShopingListProps[],
-            insertedValue: "" as string | number,
-            checkedItems: []
+            items: [] as string[],
+            insertedValue: "",
+            checkedItems: [] as number[]
         }
     },
     methods: {
