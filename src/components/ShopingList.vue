@@ -8,7 +8,6 @@
             <form @submit.prevent="submitForm" class="container__input-form">
                 <input type="text" class="container__input-addField" v-model="insertedValue">
                 <button class="container__input-addButton" type="submit">+</button>
-
             </form>
             <div>
                 <p class="error"> {{ isFormError ? errorText : '' }}</p>
@@ -17,15 +16,14 @@
         <div class="container__shopingList">
             <ul class="container__shopingList-box">
                 <li v-for="(item, index) in items" :key="index" class="container__shopingList-box-item"
-                    :class="{ 'underlined': checkedItems.includes(index) }">
+                    :class="{ 'underlined': item.isChecked }" :data-isChecked="item.isChecked">
                     <div class="item__text">
-                        <span>{{ item }}</span>
-                        <input type="checkbox" v-model="checkedItems" :value="index">
+                        <span>{{ item.value }}</span>
+                        <input type="checkbox" @change="handleCheck(index)" :checked="item.isChecked">
                     </div>
                     <div class="item__icon" v-on:click="handleDelete(index)">
                         <img src="../components/icons/trash.png" alt="trash icon">
                     </div>
-
                 </li>
             </ul>
         </div>
@@ -38,15 +36,20 @@
 <script lang="ts">
 
 export default {
-    name: 'shopingList',
+    name: 'ShopingList',
 
     data() {
         return {
-            items: [] as string[],
+            items: [] as { value: string, isChecked: boolean }[],
             insertedValue: "",
-            checkedItems: [] as number[],
             isFormError: false as boolean,
-            errorText: 'Pole jest puste' as string
+            errorText: 'Pole jest puste' as string,
+        }
+    },
+    mounted() {
+        const savedShopingList = localStorage.getItem('shopingStorage');
+        if (savedShopingList) {
+            this.items = JSON.parse(savedShopingList)
         }
     },
     methods: {
@@ -55,16 +58,24 @@ export default {
                 return this.isFormError = true;
             } else {
                 this.isFormError = false;
-                this.items.push(this.insertedValue);
+                this.items.push({ value: this.insertedValue, isChecked: false });
+                this.savedShopingList()
                 this.insertedValue = '';
             }
         },
+        handleCheck(itemId: number) {
+            const item = this.items[itemId];
+            item.isChecked = !item.isChecked;
+            this.savedShopingList()
+        },
         handleDelete(itemId: number) {
             this.items.splice(itemId, 1)
+            this.savedShopingList()
+        },
+        savedShopingList() {
+            localStorage.setItem('shopingStorage', JSON.stringify(this.items))
         }
-
-    }
-
+    },
 }
 
 </script>
