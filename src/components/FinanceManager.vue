@@ -8,7 +8,7 @@
 
         <div class="container__summary">
             <button class="container__summary-paycheck">Przychody: {{ paycheck }} zł</button>
-            <button class="container__summary-expenses">Wydatki: {{ isAnyExpenses ? 0 : handleSummary() }} zł</button>
+            <button class="container__summary-expenses">Wydatki: {{ isAnyExpenses ? 0 : expenses }} zł</button>
         </div>
         <div class="container__input">
             <form @submit.prevent="submitForm" class="container__input-form">
@@ -23,14 +23,12 @@
                     <button class="container__input__buttons-addButton" type="submit">Dodaj</button>
                     <RouterLink to="/"><button class="container__input__buttons-return">Powrót</button></RouterLink>
                 </div>
-
             </form>
 
         </div>
         <div class="container__shopingList">
             <ul class="container__shopingList-box">
-                <li v-for="(item, index) in items" :key="index" class="container__shopingList-box-item"
-                    :class="{ 'underlined': checkedItems.includes(index) }">
+                <li v-for="(item, index) in items" :key="index" class="container__shopingList-box-item">
                     <div class="items">
                         <div class="items__text"> {{ item.name }} - {{ item.sum }} zł</div>
                         <div class="items__icon" v-on:click="handleDelete(index)">
@@ -57,14 +55,28 @@ export default {
             items: [] as UserInputProps[],
             expensesSummary: [],
             paycheck: 2000,
+            expenses: [],
             insertedValue: null,
             insertedExpensesName: "" as string,
-            checkedItems: [] as number[],
             isFormError: false as boolean,
             isAnyExpenses: false as boolean,
             errorText: 'Wprowadź poprawnie dane.' as string
         }
     },
+    mounted() {
+        const savedFinanceItem = localStorage.getItem('financeItems');
+        if (savedFinanceItem) {
+            this.items = JSON.parse(savedFinanceItem)
+        }
+        const sumFromStorage = localStorage.getItem('financeItems');
+
+        if (sumFromStorage) {
+            const sumArray = JSON.parse(sumFromStorage);
+            const count = sumArray.reduce((total: any, obj: any) => total + obj.sum, 0);
+            this.expenses = count
+        }
+    },
+
     methods: {
         submitForm() {
             if (this.insertedValue === null && this.insertedExpensesName === '') {
@@ -80,6 +92,7 @@ export default {
                 this.items.push(userInput);
                 if (this.insertedValue !== null) {
                     this.expensesSummary.push(this.insertedValue);
+                    this.savedFinanceItem()
                 }
 
                 this.insertedValue = null;
@@ -88,11 +101,15 @@ export default {
         },
         handleDelete(itemId: number) {
             this.items.splice(itemId, 1)
+            this.savedFinanceItem();
         },
-        handleSummary() {
-            let sum = 0
-            this.expensesSummary.forEach(num => sum += num)
-            return sum
+
+        // let sum = 0;
+        // this.expensesSummary.forEach(num => sum += num)
+        // return sum;
+
+        savedFinanceItem() {
+            localStorage.setItem('financeItems', JSON.stringify(this.items));
         }
 
     }
